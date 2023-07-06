@@ -1,0 +1,3 @@
+core.out
+compile_commands.json
+.cache/clangd/index
