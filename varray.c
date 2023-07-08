@@ -148,7 +148,9 @@ void* _VARRAY_ERASE(void* varray, uint64_t index)
 
         uint64_t start_address = (uint64_t)varray + (index + 1) * stride;
         uint64_t target_address = (uint64_t)varray + index * stride;
-        uint64_t amount_of_data = (length - (index+1)) * stride;
+		uint64_t amount_of_data = 0;
+		if(length - index == 0) amount_of_data = stride;
+		else amount_of_data = (length - (index+1)) * stride;
 
         memcpy((void*)target_address,(void*)start_address,amount_of_data); //shift data over
         

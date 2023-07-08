@@ -42,7 +42,7 @@ void* _VARRAY_FREE(void** varray, uint64_t index);
 #define VARRAY_SHRINK_THRESHOLD 3
 #endif
 
-#define VARRAY(type) _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(type))
+#define VARRAY(type) type*
 #define VARRAY_DESTROY(varray) _VARRAY_DESTROY(varray)
 
 #define VARRAY_RESERVE(varray,new_size) varray = _VARRAY_RESERVE(varray,new_size)
@@ -53,6 +53,7 @@ void* _VARRAY_FREE(void** varray, uint64_t index);
 
 #define VARRAY_PUSH(varray,value)\
     {\
+		if(varray == NULL) {varray = _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(typeof(*varray)));}\
         typeof(*varray) typedvalue = value;\
         varray = _VARRAY_PUSH(varray,&typedvalue);\
     }\
@@ -76,3 +77,4 @@ void* _VARRAY_FREE(void** varray, uint64_t index);
     {\
         varray = _VARRAY_FREE((void**)varray,index);\
     }\
+
