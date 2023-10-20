@@ -45,7 +45,11 @@ void* _VARRAY_FREE(void** varray, uint64_t index);
 #define VARRAY(type) type*
 #define VARRAY_DESTROY(varray) _VARRAY_DESTROY(varray)
 
-#define VARRAY_RESERVE(varray,new_size) varray = _VARRAY_RESERVE(varray,new_size)
+#define VARRAY_RESERVE(varray,new_size)\
+	{\
+		if(varray == NULL) varray = _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(typeof(*varray)));\
+		varray = _VARRAY_RESERVE(varray,new_size);\
+	}\
 
 #define VARRAY_SIZE_GET(varray) _VARRAY_HEADER_GET(varray, VARRAY_SIZE)
 #define VARRAY_LENGTH_GET(varray) _VARRAY_HEADER_GET(varray, VARRAY_LENGTH)

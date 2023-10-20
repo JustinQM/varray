@@ -66,14 +66,11 @@ void* _VARRAY_RESERVE(void* varray, uint64_t new_size)
         uint64_t current_size = VARRAY_SIZE_GET(varray);
         if(current_size > new_size) return varray;
 
-        uint64_t resize_factor = 1;
         while(current_size < new_size)
         {
-                current_size = current_size * VARRAY_RESIZE_FACTOR;         
-                resize_factor = resize_factor * VARRAY_RESIZE_FACTOR; 
+			varray = _VARRAY_RESIZE(varray,VARRAY_RESIZE_FACTOR);
+			current_size = VARRAY_SIZE_GET(varray);
         }
-
-        varray = _VARRAY_RESIZE(varray,resize_factor);
 
         return varray;
 

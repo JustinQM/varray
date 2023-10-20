@@ -4,9 +4,12 @@
 
 int main(void)
 {
-    uint64_t test_amount = 100000;
+    uint64_t test_amount = 10;
     // uint64_t* test = VARRAY(uint64_t);
 	VARRAY(uint64_t) test = NULL;
+
+	VARRAY_RESERVE(test,test_amount);
+	
 
     for(int i = 0; i < test_amount; i++)
     {
