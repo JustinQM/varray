@@ -5,8 +5,8 @@ TARGET=varray
 $(TARGET): main.c libvarray.a
 	$(CC) $(CFLAGS) $^ -o $@
 
-debug: main.c libvarray.a
-	$(CC) -Wall -O1 -g  $^ -o $@
+debug: main.c varray.c
+	$(CC) -Wall -g  main.c varray.c -o $@
 
 varray.o: varray.c
 	$(CC) $(CFLAGS) -c $< -o $@

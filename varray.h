@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 typedef enum VARRAY_FIELD
 {
@@ -21,6 +22,7 @@ uint64_t _VARRAY_HEADER_GET(void* varray, VARRAY_FIELD header_field);
 void _VARRAY_HEADER_SET(void* varray, VARRAY_FIELD header_field, uint64_t header_value);
 
 void* _VARRAY_PUSH(void* varray, const void* value);
+void* _VARRAY_PUSH_MANY(void* varray, ...);
 void* _VARRAY_POP(void* varray, void* dest);
 
 void* _VARRAY_INSERT(void* varray, uint64_t index, const void* value);
@@ -42,42 +44,48 @@ void* _VARRAY_FREE(void** varray, uint64_t index);
 #define VARRAY_SHRINK_THRESHOLD 3
 #endif
 
-#define VARRAY(type) type*
-#define VARRAY_DESTROY(varray) _VARRAY_DESTROY(varray)
+#define Varray(type) type*
+#define varray_destroy(varray) _VARRAY_DESTROY(varray)
 
-#define VARRAY_RESERVE(varray,new_size)\
+#define varray_reserve(varray,new_size)\
 	{\
 		if(varray == NULL) varray = _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(typeof(*varray)));\
 		varray = _VARRAY_RESERVE(varray,new_size);\
 	}\
 
-#define VARRAY_SIZE_GET(varray) _VARRAY_HEADER_GET(varray, VARRAY_SIZE)
-#define VARRAY_LENGTH_GET(varray) _VARRAY_HEADER_GET(varray, VARRAY_LENGTH)
-#define VARRAY_STRIDE_GET(varray) _VARRAY_HEADER_GET(varray, VARRAY_STRIDE)
+#define varray_size(varray) _VARRAY_HEADER_GET(varray, VARRAY_SIZE)
+#define varray_length(varray) _VARRAY_HEADER_GET(varray, VARRAY_LENGTH)
+#define varray_stride(varray) _VARRAY_HEADER_GET(varray, VARRAY_STRIDE)
 
-#define VARRAY_PUSH(varray,value)\
+#define varray_push(varray,value)\
     {\
 		if(varray == NULL) {varray = _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(typeof(*varray)));}\
         typeof(*varray) typedvalue = value;\
         varray = _VARRAY_PUSH(varray,&typedvalue);\
     }\
 
-#define VARRAY_POP(varray,dest) varray = _VARRAY_POP(varray,dest)
+#define varray_push_many(varray,...)\
+    {\
+		if(varray == NULL) {varray = _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(typeof(*varray)));}\
+        varray = _VARRAY_PUSH_MANY(varray,__VA_ARGS__,NULL);\
+    }\
 
-#define VARRAY_FRONT(varray) varray[0]
-#define VARRAY_BACK(varray) varray[VARRAY_LENGTH_GET(varray)-1]
+#define varray_pop(varray,dest) varray = _VARRAY_POP(varray,dest)
 
-#define VARRAY_INSERT(varray,index,value)\
+#define varray_front(varray) varray[0]
+#define varray_back(varray) varray[VARRAY_LENGTH_GET(varray)-1]
+
+#define varray_insert(varray,index,value)\
     {\
         typeof(*varray) typedvalue = value;\
         varray = _VARRAY_INSERT(varray,index,&typedvalue);\
     }\
 
-#define VARRAY_ERASE(varray,index) varray = _VARRAY_ERASE(varray,index)
+#define varray_erase(varray,index) varray = _VARRAY_ERASE(varray,index)
 
-#define VARRAY_SWAP(varray,index1,index2) _VARRAY_SWAP(varray,index1,index2)
+#define varray_swap(varray,index1,index2) _VARRAY_SWAP(varray,index1,index2)
 
-#define VARRAY_FREE(varray,index)\
+#define varray_free(varray,index)\
     {\
         varray = _VARRAY_FREE((void**)varray,index);\
     }\

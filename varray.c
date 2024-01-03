@@ -54,7 +54,7 @@ void* _VARRAY_RESIZE(void* varray, int16_t resize_factor)
         }
 
         //set length of new varray from previous
-        _VARRAY_HEADER_SET(new_varray, VARRAY_LENGTH, VARRAY_LENGTH_GET(varray));
+        _VARRAY_HEADER_SET(new_varray, VARRAY_LENGTH, varray_length(varray));
 
         _VARRAY_DESTROY(varray);
 
@@ -63,13 +63,13 @@ void* _VARRAY_RESIZE(void* varray, int16_t resize_factor)
 
 void* _VARRAY_RESERVE(void* varray, uint64_t new_size)
 {
-        uint64_t current_size = VARRAY_SIZE_GET(varray);
+        uint64_t current_size = varray_size(varray);
         if(current_size > new_size) return varray;
 
         while(current_size < new_size)
         {
 			varray = _VARRAY_RESIZE(varray,VARRAY_RESIZE_FACTOR);
-			current_size = VARRAY_SIZE_GET(varray);
+			current_size = varray_size(varray);
         }
 
         return varray;
@@ -79,9 +79,9 @@ void* _VARRAY_RESERVE(void* varray, uint64_t new_size)
 
 void* _VARRAY_PUSH(void* varray, const void* value)
 {
-        uint64_t length = VARRAY_LENGTH_GET(varray);
-        uint64_t stride = VARRAY_STRIDE_GET(varray);
-        uint64_t size = VARRAY_SIZE_GET(varray);
+        uint64_t length = varray_length(varray);
+        uint64_t stride = varray_stride(varray);
+        uint64_t size = varray_size(varray);
 
         //resize if length will be larger then size
         if(length + 1 > size)
@@ -94,11 +94,39 @@ void* _VARRAY_PUSH(void* varray, const void* value)
         return varray;
 }
 
+void* _VARRAY_PUSH_MANY(void* varray, ...)
+{
+		va_list ap;
+		const void* value = NULL;
+		va_start(ap,varray);
+		value = va_arg(ap,const void*);
+		while(value != NULL)
+		{
+			uint64_t length = varray_length(varray);
+			uint64_t stride = varray_stride(varray);
+			uint64_t size = varray_size(varray);
+
+			//resize if length will be larger then size
+			if(length + 1 > size)
+			{
+				varray = _VARRAY_RESIZE(varray, VARRAY_RESIZE_FACTOR);
+			}
+
+			uint64_t address = (uint64_t)varray + length * stride;
+			memcpy((void*)address,&value,stride);
+
+			_VARRAY_HEADER_SET(varray, VARRAY_LENGTH, length+1);
+
+			value = va_arg(ap,void*);
+		}
+		va_end(ap);
+        return varray;
+}
 void* _VARRAY_POP(void* varray, void* dest)
 {
-        uint64_t size = VARRAY_SIZE_GET(varray);  
-        uint64_t length = VARRAY_LENGTH_GET(varray);  
-        uint64_t stride = VARRAY_STRIDE_GET(varray);  
+        uint64_t size = varray_size(varray);  
+        uint64_t length = varray_length(varray);  
+        uint64_t stride = varray_stride(varray);  
 
         uint64_t address = (uint64_t)varray + (length-1) * stride;
         if(dest != NULL)
@@ -114,9 +142,9 @@ void* _VARRAY_POP(void* varray, void* dest)
 
 void* _VARRAY_INSERT(void* varray, uint64_t index, const void* value)
 {
-        uint64_t length = VARRAY_LENGTH_GET(varray);
-        uint64_t stride = VARRAY_STRIDE_GET(varray);
-        uint64_t size = VARRAY_SIZE_GET(varray);
+        uint64_t length = varray_length(varray);
+        uint64_t stride = varray_stride(varray);
+        uint64_t size = varray_size(varray);
 
         if(index>size) return varray;
 
@@ -137,9 +165,9 @@ void* _VARRAY_INSERT(void* varray, uint64_t index, const void* value)
 
 void* _VARRAY_ERASE(void* varray, uint64_t index)
 {
-        uint64_t length = VARRAY_LENGTH_GET(varray);
-        uint64_t stride = VARRAY_STRIDE_GET(varray);
-        uint64_t size = VARRAY_SIZE_GET(varray);
+        uint64_t length = varray_length(varray);
+        uint64_t stride = varray_stride(varray);
+        uint64_t size = varray_size(varray);
 
         if(index>size) return varray;
 
@@ -160,8 +188,8 @@ void* _VARRAY_ERASE(void* varray, uint64_t index)
 
 void _VARRAY_SWAP(void* varray, uint64_t index1, uint64_t index2)
 {
-        uint64_t length = VARRAY_LENGTH_GET(varray);
-        uint64_t stride = VARRAY_STRIDE_GET(varray);
+        uint64_t length = varray_length(varray);
+        uint64_t stride = varray_stride(varray);
         
         if(index1 > length || index2 > length) return;
         
@@ -180,6 +208,6 @@ void _VARRAY_SWAP(void* varray, uint64_t index1, uint64_t index2)
 void* _VARRAY_FREE(void** varray, uint64_t index)
 {
     free(varray[index]);
-    VARRAY_ERASE(varray,index);
+    varray_erase(varray,index);
     return varray;
 }
