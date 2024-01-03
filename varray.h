@@ -57,6 +57,8 @@ void* _VARRAY_FREE(void** varray, uint64_t index);
 #define varray_length(varray) _VARRAY_HEADER_GET(varray, VARRAY_LENGTH)
 #define varray_stride(varray) _VARRAY_HEADER_GET(varray, VARRAY_STRIDE)
 
+#define varray_length_set(varray) _VARRAY_HEADER_SET(varray, VARRAY_LENGTH)
+
 #define varray_push(varray,value)\
     {\
 		if(varray == NULL) {varray = _VARRAY_INIT(VARRAY_DEFAULT_SIZE, sizeof(typeof(*varray)));}\
